@@ -1,13 +1,8 @@
-
-// let quantity_selectors = Array.from(document.getElementsByClassName("selectQuantity"));
-// quantity_selectors.forEach(selector_elem => {
-//     selector_elem.onchange = function(){console.log(selector_elem)}
-// });
-
 const ITEM_COSTS = Array.from(document.getElementsByClassName("cost"));
 const TOTAL_COST_BOXES = document.getElementsByName("cost");
 const RADIO_ELEMS = document.getElementsByName("p_or_d");
 const ADDRESS_ELEMS = Array.from(document.getElementsByClassName("userInfo address"));
+const ITEM_NAME_ELEMS = Array.from(document.getElementsByClassName("itemName"));
 const MASS_TAX = 0.0625
 
 
@@ -53,6 +48,14 @@ function get_quantities() {
     return quantities;
 }
 
+function get_item_totals() {
+    let item_totals = []
+    for (let i = 0; i < 5; i++) {
+        item_totals.push(TOTAL_COST_BOXES[i].value)
+    }
+    return item_totals;
+}
+
 function add_submit_event_handler() {
     let button_elem = document.querySelectorAll('input[type=button]')[0];
     button_elem.onclick = handle_submit;
@@ -86,7 +89,8 @@ function calc_order_time() {
     if (is_delivery()) {
         prep_time = 45;
     }
-    return new Date(order_time.getTime() + prep_time*60000); 
+    let new_time = new Date(order_time.getTime() + prep_time*60000);
+    return new_time.getHours() + ":" + new_time.getMinutes() + ":" + new_time.getSeconds(); 
 }
 
 function validate_order() {
@@ -128,11 +132,23 @@ function validate_order() {
 }
 
 function handle_submit() {
-    const order_time = calc_order_time();
     if (validate_order()) {
         alert("Thank you for your order!");
-        let newWindowObj = window.open("", "OrderConfirmation");
-        newWindowObj.document.writeln("<h1>hello</h1>")
+        let newWindowObj = window.open("", "_blank");
+
+        newWindowObj.document.write("<h1>Order Details</h1>");
+        newWindowObj.document.write("<table cellpadding='3'><tbody><tr><th>Item</th><th>Quantity</th><th>Total</th></tr>");
+
+        let quantities = get_quantities();
+        let item_totals = get_item_totals();
+        for (let i = 0; i < ITEM_NAME_ELEMS.length; i++) {
+            newWindowObj.document.write("<tr><td>"+ ITEM_NAME_ELEMS[i].innerHTML + "</td><td>"+ quantities[i] + "</td><td>"+ item_totals[i] + "</td></tr>");
+        }
+        newWindowObj.document.write("</tbody></table>");
+        newWindowObj.document.write("<p>Subtotal: $" + document.getElementById("subtotal").value + "</p>");
+        newWindowObj.document.write("<p>Tax: $" + document.getElementById("tax").value + "</p>");
+        newWindowObj.document.write("<p>Total: $" + document.getElementById("total").value + "</p>");
+        newWindowObj.document.write("<p>Your order will be ready at " + calc_order_time() + "</p>");
     }
 }
 
