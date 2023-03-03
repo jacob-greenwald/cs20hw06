@@ -11,29 +11,12 @@ function item_cost(item_index) {
     return parseFloat(price.substring(1, price.length))
 }
 
-function update_totals() {
-    let subtotal = 0;
-    TOTAL_COST_BOXES.forEach(element => {
-        if (element.value) {
-            subtotal += parseFloat(element.value);
-        }
-    });
-    let tax = MASS_TAX * subtotal;
-    let total = tax + subtotal;
-
-    document.getElementById("subtotal").value = (subtotal).toFixed(2);
-    document.getElementById("tax").value = (tax).toFixed(2);
-    document.getElementById("total").value = (total).toFixed(2);
-}
-
 function add_quantity_event_handlers() {
     for (let i = 0; i < 5; i++) {
         let name = "quan" + i;
         let selector = document.getElementsByName(name)[0]
         selector.onchange = function(){
-            let quantity = selector.value
-            TOTAL_COST_BOXES[i].value = (quantity * item_cost(i)).toFixed(2);
-            update_totals();
+            populate_totals();
         }
     }
 }
@@ -131,6 +114,29 @@ function validate_order() {
     return false;
 }
 
+function populate_totals() {
+    for (let i = 0; i < ITEM_NAME_ELEMS.length; i++) {
+        let name = "quan" + i;
+        let selector = document.getElementsByName(name)[0]
+
+        let quantity = selector.value
+        TOTAL_COST_BOXES[i].value = (quantity * item_cost(i)).toFixed(2);
+    }
+
+    let subtotal = 0;
+    TOTAL_COST_BOXES.forEach(element => {
+        if (element.value) {
+            subtotal += parseFloat(element.value);
+        }
+    });
+    let tax = MASS_TAX * subtotal;
+    let total = tax + subtotal;
+
+    document.getElementById("subtotal").value = (subtotal).toFixed(2);
+    document.getElementById("tax").value = (tax).toFixed(2);
+    document.getElementById("total").value = (total).toFixed(2);
+}
+
 function handle_submit() {
     if (validate_order()) {
         alert("Thank you for your order!");
@@ -152,6 +158,17 @@ function handle_submit() {
     }
 }
 
+function make_costs_read_only() {
+    TOTAL_COST_BOXES.forEach(element => {
+        element.setAttribute("readonly", "true");
+    });
+    document.getElementById("subtotal").setAttribute("readonly", true);
+    document.getElementById("tax").setAttribute("readonly", true);
+    document.getElementById("total").setAttribute("readonly", true);
+}
+
+make_costs_read_only();
+populate_totals();
 add_quantity_event_handlers();
 add_radio_event_handlers();
 add_submit_event_handler();
